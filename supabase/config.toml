@@ -1,0 +1,6 @@
+# Only the settings this project relies on; everything else uses Supabase defaults.
+project_id = "road-to-expert"
+
+[functions.sync]
+# The function checks the caller itself (user token, or x-cron-secret for scheduled runs).
+verify_jwt = false
