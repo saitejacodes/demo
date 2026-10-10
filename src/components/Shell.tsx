@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { backend } from "../lib/backend";
+import { backend, isDemo, setDemo } from "../lib/backend";
 import { probURL } from "../lib/progress";
 import { STAGES } from "../data/roadmap";
 import { useApp } from "../state/AppContext";
@@ -27,7 +27,8 @@ export function Shell() {
       </div>
     </aside>
     <main className="main">
-      {backend.mode === "local" && <p className="banner-demo">Demo mode — data is saved in this browser only. Add the Supabase keys to switch to cloud save.</p>}
+      {isDemo ? <p className="banner-demo">Demo — every stage is unlocked and nothing is saved to a real account. <a href="#" onClick={e => { e.preventDefault(); setDemo(false); location.assign("/login") }}>Exit demo</a></p>
+        : backend.mode === "local" && <p className="banner-demo">Demo mode — data is saved in this browser only. Add the Supabase keys to switch to cloud save.</p>}
       {data && <div className="mtop chips"><Chips /></div>}
       <AnimatePresence mode="wait">
         <motion.div key={loc.pathname.split("/")[1]} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }}>

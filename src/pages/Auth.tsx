@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { backend, type Role } from "../lib/backend";
+import { backend, setDemo, type Role } from "../lib/backend";
 import { useApp } from "../state/AppContext";
 import { PARENT_ACCOUNTS } from "../config";
 
@@ -26,6 +26,8 @@ export function Login() {
       await reloadAccount(); nav("/");
     } catch (er) { setMsg({ err: (er as Error).message }) } finally { setBusy(false) }
   };
+  // Demo: see src/lib/demo.ts
+  const startDemo = () => { setDemo(true); location.assign("/") };   // reload so the in-browser backend is used
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
 
   return <div className="authwrap"><form className="authcard card" onSubmit={submit}>
@@ -47,5 +49,7 @@ export function Login() {
     {msg.err && <p className="err small">{msg.err}</p>}
     {msg.info && <p className="small" style={{ color: "var(--ok)" }}>{msg.info}</p>}
     <button className="btn" disabled={busy}>{busy ? "Please wait…" : tab === "in" ? "Sign in" : "Create account"}</button>
+    <button type="button" className="btn ghost" onClick={startDemo}>👀 Try the demo — everything unlocked</button>
+    <p className="muted small" style={{ textAlign: "center", margin: "8px 0 0" }}>The demo runs in your browser only and never touches real accounts.</p>
   </form></div>;
 }

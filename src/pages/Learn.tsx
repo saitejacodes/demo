@@ -13,7 +13,7 @@ export function Learn() {
   if (!data || !prog) return <EmptyState />;
   const cur = prog.current;
   const want = params.stage === undefined ? cur : Number(params.stage);
-  if (Number.isNaN(want) || want > cur || want < 0) return <Navigate to={`/learn/${cur}`} replace />;
+  if (Number.isNaN(want) || want > prog.unlocked || want < 0) return <Navigate to={`/learn/${cur}`} replace />;
   const sel = want, s = STAGES[sel], p = prog.stageProg(s);
   const lesson = query.get("lesson"), at = lesson !== null && prog.itemOpen(sel, +lesson) ? { si: sel, ii: +lesson } : null;
   const who = readOnly ? (data.profile.display_name || "She") : "you";

@@ -16,7 +16,7 @@ export const probURL = (s: { c: number; i: string; g?: string }) =>
 export type Progress = ReturnType<typeof buildProgress>;
 
 // Everything the UI needs, derived from her Codeforces submissions plus the manual ticks.
-export function buildProgress(cf: CfData | null, manual: Record<string, string>) {
+export function buildProgress(cf: CfData | null, manual: Record<string, string>, unlockAll = false) {
   const solved = new Set<string>(), tried = new Map<string, Sub>(), days = new Map<string, number>();
   const byContest: Record<number, { probs: Set<string>; ok: Set<string>; part: boolean }> = {};
   for (const s of cf?.subs || []) {
@@ -44,7 +44,8 @@ export function buildProgress(cf: CfData | null, manual: Record<string, string>)
   for (let i = 0; i < STAGES.length; i++) if (stageProg(STAGES[i]).p < UNLOCK_AT) { current = i; break }
   const nextItem = (si: number) => { const ii = STAGES[si].items.findIndex(it => !isDone(it)); return ii < 0 ? null : ii };
   // Inside the current stage only finished lessons and the next one are open; later stages are closed.
-  const itemOpen = (si: number, ii: number) => si !== current ? si < current : isDone(STAGES[si].items[ii]) || ii === nextItem(si);
+  const unlocked = unlockAll ? STAGES.length - 1 : current;   // furthest stage she may open
+  const itemOpen = (si: number, ii: number) => unlockAll || (si !== current ? si < current : isDone(STAGES[si].items[ii]) || ii === nextItem(si));
   const streak = () => {
     let n = 0; const d = new Date(); const has = (x: Date) => days.has(x.toDateString());
     if (!has(d)) d.setDate(d.getDate() - 1);
@@ -53,7 +54,7 @@ export function buildProgress(cf: CfData | null, manual: Record<string, string>)
   };
   const upsolve = [...tried].filter(([k]) => !solved.has(k)).map(([, s]) => s).sort((a, b) => b.t - a.t);
   const totalDone = STAGES.reduce((a, s) => a + stageProg(s).d, 0);
-  return { solved, tried, days, byContest, cpSolved, cpTried, sheetSolved, isDone, stageProg, current, nextItem, itemOpen, streak, upsolve, totalDone };
+  return { unlocked, solved, tried, days, byContest, cpSolved, cpTried, sheetSolved, isDone, stageProg, current, nextItem, itemOpen, streak, upsolve, totalDone };
 }
 
 // Human labels for problem keys in the activity timeline.

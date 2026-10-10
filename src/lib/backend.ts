@@ -43,7 +43,10 @@ export interface Backend {
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const anon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-export const backend: Backend = url && anon ? createCloudBackend(url, anon) : createLocalBackend();
+// "Try the demo" runs the in-browser backend with everything unlocked, even when Supabase is configured.
+export const isDemo = (() => { try { return localStorage.getItem("rte-app:demo") === "1" } catch { return false } })();
+export const setDemo = (on: boolean) => { try { on ? localStorage.setItem("rte-app:demo", "1") : localStorage.removeItem("rte-app:demo") } catch { /* private mode */ } };
+export const backend: Backend = !isDemo && url && anon ? createCloudBackend(url, anon) : createLocalBackend();
 
 // Screenshots are shrunk before upload: max 1400px, JPEG — keeps storage tiny and uploads fast.
 export async function compressImage(file: File): Promise<Blob> {

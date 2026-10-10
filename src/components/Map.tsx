@@ -6,7 +6,7 @@ import { Icon, LANE } from "./Icons";
 
 export function Journey({ prog, sel, onSelect, onLocked }: { prog: Progress; sel: number; onSelect(si: number): void; onLocked(): void }) {
   return <div className="journey">{STAGES.map((st, si) => {
-    const locked = si > prog.current, cls = locked ? "locked" : si < prog.current ? "done" : "cur";
+    const locked = si > prog.unlocked, cls = locked ? "locked" : si < prog.current ? "done" : "cur";
     return <button key={si} className={`jstop ${cls} ${si === sel ? "sel" : ""}`} style={{ ["--sc" as string]: st.color }}
       onClick={() => locked ? onLocked() : onSelect(si)} title={locked ? "Locked" : st.title}>
       <span className="jdot">{locked ? <Icon name="lock" size={20} /> : si < prog.current ? <Icon name="check" size={20} /> : si}</span>

@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { backend, type Profile, type StudentData } from "../lib/backend";
+import { ensureDemoSession } from "../lib/demo";
+import { backend, isDemo, type Profile, type StudentData } from "../lib/backend";
 import { buildProgress, rankOf, RANKS, type Progress } from "../lib/progress";
 import { STAGES } from "../data/roadmap";
 import { burst, ding } from "../components/Confetti";
@@ -58,6 +59,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setSound = (v: boolean) => { pref.set("sound", v ? "1" : "0"); setSoundState(v) };
 
   const reloadAccount = useCallback(async () => {
+    if (isDemo) await ensureDemoSession();
     const id = await backend.currentUserId();
     setUserId(id);
     if (!id) { setMe(null); setStudents([]); setViewingState(null); setData(null); setReady(true); return }
@@ -81,7 +83,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => { sessionStage.current = null; refresh().catch(e => toast(e.message)) }, [refresh, toast]);
 
   const setViewing = (id: string) => { pref.set("viewing", id); setViewingState(id) };
-  const prog = useMemo(() => data ? buildProgress(data.cf, data.manual) : null, [data]);
+  const prog = useMemo(() => data ? buildProgress(data.cf, data.manual, isDemo) : null, [data]);
   const readOnly = me?.role === "parent";
 
   const sync = useCallback(async () => {
