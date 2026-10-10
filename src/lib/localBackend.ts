@@ -80,7 +80,7 @@ export function createLocalBackend(): Backend {
     },
     async setManual(itemId, done) {
       const db = read(), sid = me(); const m = (db.manual[sid] ||= {});
-      if (done) { m[itemId] = new Date().toISOString(); addActivity(db, sid, "milestone", { item: itemId }) } else delete m[itemId];
+      if (done) { m[itemId] = new Date().toISOString(); if (!itemId.startsWith("setup:")) addActivity(db, sid, "milestone", { item: itemId }) } else delete m[itemId];
       write(db);
     },
     async saveReflection(itemId, answers) {

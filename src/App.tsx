@@ -3,18 +3,23 @@ import { AppProvider, useApp } from "./state/AppContext";
 import { Shell } from "./components/Shell";
 import { ConfettiCanvas } from "./components/Confetti";
 import { Celebration, Toast } from "./components/Overlays";
-import { Login, Onboarding } from "./pages/Auth";
+import { Login } from "./pages/Auth";
+import { Setup } from "./pages/Setup";
 import { Learn } from "./pages/Learn";
 import { Profile, Stats, Today, Upsolve } from "./pages/Views";
 import { Parent } from "./pages/Parent";
 
 // Signed-in only; students finish onboarding (Codeforces handle) before anything else.
 function RequireAuth() {
-  const { ready, userId, me } = useApp();
+  const { ready, userId, me, data } = useApp();
   const loc = useLocation();
   if (!ready) return <div className="authwrap"><p className="muted">Loading…</p></div>;
   if (!userId || !me) return <Navigate to="/login" replace />;
-  if (me.role === "student" && !me.cf_handle && loc.pathname !== "/onboarding") return <Navigate to="/onboarding" replace />;
+  if (me.role === "student") {
+    if (!data) return <div className="authwrap"><p className="muted">Loading…</p></div>;
+    // First sign-in: Codeforces handle, groups, API key, CSES and TLE accounts before anything else.
+    if ((!data.profile.cf_handle || !data.manual["setup:done"]) && loc.pathname !== "/onboarding") return <Navigate to="/onboarding" replace />;
+  }
   return <Outlet />;
 }
 function Home() {
@@ -28,7 +33,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route element={<RequireAuth />}>
-          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/onboarding" element={<Setup />} />
           <Route element={<Shell />}>
             <Route index element={<Home />} />
             <Route path="learn" element={<Learn />} />

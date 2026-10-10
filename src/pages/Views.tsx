@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { STAGES, NEWCOMERS, JUNIORS, CP31 } from "../data/roadmap";
 import { backend } from "../lib/backend";
 import { probURL } from "../lib/progress";
@@ -7,6 +7,7 @@ import { useApp } from "../state/AppContext";
 import { Icon, LANE } from "../components/Icons";
 import { Heatmap, RatingChart } from "../components/Widgets";
 import { EmptyState } from "./Learn";
+import { SETUP_STEPS, setupState } from "./Setup";
 import { PARENT_ACCOUNTS } from "../config";
 
 export function Today() {
@@ -82,6 +83,9 @@ export function Profile() {
           <p className="small" style={{ marginBottom: 0 }}>Parent link code — share it so your parent can follow your progress:</p>
           <div className="code">{me.invite_code}</div></>}
         <button className="btn ghost" onClick={() => backend.signOut()}>Sign out</button></div>
+      {me.role === "student" && <div className="card"><h3>Setup</h3>
+        {SETUP_STEPS.map(x => <div className="row" key={x.id}><div className="t">{setupState(data)[x.id] ? "✓" : "○"} {x.title}</div></div>)}
+        <Link className="btn ghost" to="/onboarding">Open setup</Link></div>}
       <div className="card"><h3>Settings</h3>
         <div className="row"><div className="t">Sound effects</div><button className="btn ghost sm" onClick={() => setSound(!sound)}>{sound ? "On" : "Off"}</button></div>
         <div className="row"><div className="t">Theme</div><button className="btn ghost sm" onClick={() => setTheme(theme === "auto" ? "light" : theme === "light" ? "dark" : "auto")}>{theme}</button></div></div>

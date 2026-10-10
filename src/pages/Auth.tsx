@@ -49,30 +49,3 @@ export function Login() {
     <button className="btn" disabled={busy}>{busy ? "Please wait…" : tab === "in" ? "Sign in" : "Create account"}</button>
   </form></div>;
 }
-
-// First run for a student: her Codeforces handle. Parents link a student from the Overview page.
-export function Onboarding() {
-  const { me, reloadAccount, refresh } = useApp();
-  const [handle, setHandle] = useState("");
-  const [err, setErr] = useState("");
-  const [busy, setBusy] = useState(false);
-  const nav = useNavigate();
-  if (!me) return null;
-  if (me.role === "parent" || me.cf_handle) return <Navigate to="/" replace />;
-  const go = async (e: React.FormEvent) => {
-    e.preventDefault(); setBusy(true); setErr("");
-    try {
-      const r = await (await fetch(`https://codeforces.com/api/user.info?handles=${encodeURIComponent(handle.trim())}`)).json();
-      if (r.status !== "OK") throw new Error("Codeforces doesn't know that handle. Check the spelling.");
-      await backend.updateProfile({ cf_handle: r.result[0].handle });
-      await reloadAccount(); await refresh(); nav("/learn");
-    } catch (er) { setErr((er as Error).message) } finally { setBusy(false) }
-  };
-  return <div className="authwrap"><form className="authcard card" onSubmit={go} style={{ textAlign: "center" }}>
-    <div className="big">🧭</div><div className="h1">Hi {me.display_name || "there"}!</div>
-    <p className="muted">Enter your Codeforces handle. The map is built from your real submissions, and each stage unlocks only after the one before it is done.</p>
-    <input className="field" style={{ textAlign: "center", fontSize: 18 }} placeholder="Codeforces handle" value={handle} onChange={e => setHandle(e.target.value)} autoCapitalize="off" autoComplete="off" required autoFocus />
-    {err && <p className="err small">{err}</p>}
-    <button className="btn" disabled={busy}>{busy ? "Checking…" : "Start the journey"}</button>
-  </form></div>;
-}

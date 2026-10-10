@@ -58,7 +58,7 @@ export function createCloudBackend(url: string, anonKey: string): Backend {
     },
     async setManual(itemId, done) {
       const sid = await me();
-      if (done) { must(await sb.from("manual_done").upsert({ student_id: sid, item_id: itemId })); await log("milestone", { item: itemId }) }
+      if (done) { must(await sb.from("manual_done").upsert({ student_id: sid, item_id: itemId })); if (!itemId.startsWith("setup:")) await log("milestone", { item: itemId }) }
       else must(await sb.from("manual_done").delete().eq("student_id", sid).eq("item_id", itemId));
     },
     async saveReflection(itemId, answers) {
